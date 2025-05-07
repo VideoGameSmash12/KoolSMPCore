@@ -89,6 +89,11 @@ public class GroupCosmetics extends KoolSMPCoreBase
         return groups.getOrDefault(name, defaultFallbackGroup);
     }
 
+    public Group getGroupByNameOrDefault(String name, Group fallback)
+    {
+        return groups.getOrDefault(name, fallback);
+    }
+
     public Group getSenderGroup(CommandSender sender)
     {
         if (sender instanceof Player player)
@@ -151,6 +156,11 @@ public class GroupCosmetics extends KoolSMPCoreBase
 
             Component displayName = section.getRichMessage("displayName", Component.text(name).color(color));
 
+            return new Group(internalName, name, displayName, color);
+        }
+
+        public static Group createGroup(String internalName, String name, Component displayName, TextColor color)
+        {
             return new Group(internalName, name, displayName, color);
         }
 

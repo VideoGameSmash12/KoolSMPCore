@@ -3,7 +3,7 @@ package eu.koolfreedom;
 import eu.koolfreedom.api.GroupCosmetics;
 import eu.koolfreedom.banning.BanManager;
 import eu.koolfreedom.config.ConfigEntry;
-import eu.koolfreedom.discord.Discord;
+import eu.koolfreedom.extensions.DiscordSRVExtension;
 import eu.koolfreedom.log.FLog;
 import eu.koolfreedom.punishment.RecordKeeper;
 import eu.koolfreedom.util.FUtil;
@@ -40,6 +40,8 @@ public class KoolSMPCore extends JavaPlugin implements Listener
     public GroupCosmetics groupCosmetics;
     public ExploitListener exploitListener;
     public ChatFilter chatFilter;
+
+    public DiscordSRVExtension discordSrv;
 
     public static LuckPerms getLuckPermsAPI()
     {
@@ -79,6 +81,8 @@ public class KoolSMPCore extends JavaPlugin implements Listener
         FLog.info("Loaded commands");
         loadListeners();
         FLog.info("Loaded listeners");
+        loadExtensions();
+        FLog.info("Loaded plugin extensions");
         groupCosmetics = new GroupCosmetics();
         loadBansConfig();
         FLog.info("Loaded configurations");
@@ -88,7 +92,6 @@ public class KoolSMPCore extends JavaPlugin implements Listener
             announcerRunnable();
         }
 
-        Discord.init();
         getLuckPermsAPI();
     }
 
@@ -96,11 +99,6 @@ public class KoolSMPCore extends JavaPlugin implements Listener
     public void onDisable()
     {
         FLog.info("KoolSMPCore has been disabled");
-
-        if (Discord.getJDA() != null)
-        {
-            Discord.getJDA().shutdownNow();
-        }
 
         banManager.save();
     }
@@ -150,6 +148,11 @@ public class KoolSMPCore extends JavaPlugin implements Listener
         registerCommand("spectate", new SpectateCommand());
         registerCommand("unban", new UnbanCommand());
         registerCommand("warn", new WarnCommand());
+    }
+
+    public void loadExtensions()
+    {
+        discordSrv = new DiscordSRVExtension();
     }
 
     @SuppressWarnings("deprecation")
@@ -215,7 +218,7 @@ public class KoolSMPCore extends JavaPlugin implements Listener
                 return;
             }
 
-            FUtil.broadcast(messages.get(FUtil.randomNumber(0, messages.size())));
+            Bukkit.broadcast(FUtil.miniMessage(messages.get(FUtil.randomNumber(0, messages.size()))));
         }, 0L, ConfigEntry.ANNOUNCER_DELAY.getInteger());
     }
 

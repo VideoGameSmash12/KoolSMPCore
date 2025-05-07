@@ -1,11 +1,13 @@
 package eu.koolfreedom.util;
 
 import eu.koolfreedom.KoolSMPCore;
+import eu.koolfreedom.api.GroupCosmetics;
 import eu.koolfreedom.config.ConfigEntry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Modifying;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -31,6 +33,7 @@ public class FUtil // the f stands for fuck
     public static void broadcast(Component component)
     {
         Bukkit.broadcast(component);
+        KoolSMPCore.getInstance().discordSrv.broadcast(component.decorate(TextDecoration.BOLD));
     }
 
     public static void broadcast(Component component, String permission)
@@ -42,7 +45,8 @@ public class FUtil // the f stands for fuck
     {
         Bukkit.broadcast(miniMessage(message, placeholders));
 
-        // TODO: Add calls to Discord broadcasts to here so that all broadcasts get sent to the Discord
+        // TODO: Do this better because this sucks lol
+        KoolSMPCore.getInstance().discordSrv.broadcast(miniMessage(message, placeholders).decorate(TextDecoration.BOLD));
     }
 
     public static void broadcast(String permission, String message, TagResolver... placeholders)
@@ -70,6 +74,17 @@ public class FUtil // the f stands for fuck
         Component formattedMessage = miniMessage(ConfigEntry.FORMATS_ADMIN_CHAT.getString(),
                 Placeholder.unparsed("name", sender.getName()),
                 Placeholder.component("rank", KoolSMPCore.getInstance().groupCosmetics.getSenderGroup(sender).getDisplayName()),
+                Placeholder.unparsed("message", message));
+
+        broadcast(formattedMessage, "kf.admin");
+        KoolSMPCore.getInstance().discordSrv.adminChat(sender, message);
+    }
+
+    public static void adminChat(String sender, GroupCosmetics.Group group, String message)
+    {
+        Component formattedMessage = miniMessage(ConfigEntry.FORMATS_ADMIN_CHAT.getString(),
+                Placeholder.unparsed("name", sender),
+                Placeholder.component("rank", group.getDisplayName()),
                 Placeholder.unparsed("message", message));
 
         broadcast(formattedMessage, "kf.admin");

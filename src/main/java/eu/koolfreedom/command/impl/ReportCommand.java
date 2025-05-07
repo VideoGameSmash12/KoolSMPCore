@@ -1,17 +1,11 @@
 package eu.koolfreedom.command.impl;
 
+import eu.koolfreedom.KoolSMPCore;
 import eu.koolfreedom.command.KoolCommand;
-import eu.koolfreedom.discord.Discord;
 import eu.koolfreedom.config.ConfigEntry;
 
-import java.awt.*;
-import java.time.ZonedDateTime;
 import java.util.List;
 
-import eu.koolfreedom.log.FLog;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -44,33 +38,7 @@ public class ReportCommand extends KoolCommand
                 Placeholder.parsed("player", target.getName() != null ? target.getName() : target.getUniqueId().toString()),
                 Placeholder.unparsed("reason", reason));
 
-        if (Discord.getJDA() != null && !ConfigEntry.DISCORD_REPORT_CHANNEL_ID.getString().isBlank())
-        {
-            Guild guild = Discord.getJDA().getGuildById(ConfigEntry.DISCORD_SERVER_ID.getString());
-
-            if (guild != null)
-            {
-                TextChannel channel = guild.getTextChannelById(ConfigEntry.DISCORD_REPORT_CHANNEL_ID.getString());
-
-                if (channel != null)
-                {
-                    try
-                    {
-                        channel.sendMessageEmbeds(new EmbedBuilder()
-                                .setTitle("Report for " + target.getName() + (!target.isOnline() ? " (offline)" : ""))
-                                .setColor(Color.RED)
-                                .setDescription(reason)
-                                .setFooter("Reported by " + sender.getName(), "https://minotar.net/helm/" + sender.getName() + ".png")
-                                .setTimestamp(ZonedDateTime.now())
-                                .build()).queue();
-                    }
-                    catch (Exception ex)
-                    {
-                        FLog.error("Failed to send report data to Discord", ex);
-                    }
-                }
-            }
-        }
+        KoolSMPCore.getInstance().discordSrv.report(playerSender, target, reason);
 
         msg(sender, "<green>Thank you. Your report has been logged.");
         msg(sender, "<yellow>Please keep in mind that spamming reports is not allowed, and you will be sanctioned if you do so.");

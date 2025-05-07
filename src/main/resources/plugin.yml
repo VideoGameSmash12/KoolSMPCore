@@ -120,4 +120,3 @@ permissions:
     default: op
 libraries:
   - org.apache.commons:commons-lang3:3.17.0
-  - net.dv8tion:JDA:5.0.0-beta.21
